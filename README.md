@@ -1,33 +1,33 @@
 # Voxitema
 
-Voxitema is a Minecraft-inspired color reference website that displays the hex color codes of vanilla Minecraft blocks and items. It helps builders, designers, addon creators, and developers explore Minecraft’s visual palette and reuse accurate colors for creative projects.
+Voxitema is a professional, Minecraft-inspired color reference website that provides accurate hex color codes for vanilla Minecraft blocks and items. It is designed to support builders, designers, addon developers, and digital creators who need reliable color data for creative and technical projects.
 
-## 🌈 Features
-- View representative colors of vanilla blocks and items  
-- Exact hex color code output  
-- Clean, searchable, and lightweight interface  
-- Useful for textures, UI design, addons, and web projects  
+## Overview
+Minecraft’s visual style is built on a carefully balanced color palette. Voxitema translates this palette into real-world color formats, making it easy to analyze, compare, and reuse block and item colors outside the game environment.
 
-## 🎯 Purpose
-Voxitema bridges Minecraft’s voxel visuals with real-world color standards, making it easy to understand and reuse in-game colors outside the game.
+## Key Features
+- Accurate hex color codes for vanilla blocks and items  
+- Clean, fast, and searchable web interface  
+- Consistent color sampling for visual accuracy  
+- Copy-ready color values for external use  
 
-## 🧱 Content Scope
-- Vanilla Minecraft blocks  
-- Vanilla Minecraft items  
-- No copyrighted branding or assets  
+## Intended Use
+- Resource pack and addon development  
+- UI, web, and graphic design  
+- Color palette analysis and reference  
+- Educational and creative workflows  
 
-## 🚀 Use Cases
-- Resource pack & addon development  
-- UI and web design  
-- Color matching and palette reference  
-- Creative and educational projects  
+## Content Policy
+- Includes only vanilla Minecraft blocks and items  
+- Avoids use of copyrighted branding and proprietary assets  
+- Focuses on original presentation and data representation  
 
-## 📛 Identifier
+## Project Identifier
 **voxitema**
 
-## ⚠️ Disclaimer
-Voxitema is an independent project and is not affiliated with or endorsed by Mojang or Microsoft.
+## Legal Notice
+Voxitema is an independent project and is not affiliated with, endorsed by, or associated with Mojang Studios or Microsoft.
 
 ---
 
-**Voxitema — where voxel visuals meet real-world color codes.**
+**Voxitema — precise color data inspired by voxel worlds.**
