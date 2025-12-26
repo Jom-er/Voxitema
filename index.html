@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Voxitema | Vanilla Semantic Analyzer</title>
+    <title>Voxitema</title>
     <link href="https://fonts.cdnfonts.com/css/minecraft-4" rel="stylesheet">
     <style>
         :root {
@@ -20,24 +20,43 @@
         body {
             background-color: var(--mc-bg);
             font-family: 'Minecraft', sans-serif;
-            margin: 0; padding: 30px;
+            margin: 0; padding: 20px;
             display: flex; flex-direction: column; align-items: center;
             color: #fff;
         }
 
-        header { text-align: center; margin-bottom: 30px; }
+        header { text-align: center; margin-bottom: 20px; }
         h1 { font-size: 3rem; color: var(--mc-gold); text-shadow: 3px 3px 0 #333; margin: 0; }
 
+        /* --- Upload Container --- */
         .upload-container {
             width: 100%; max-width: 600px; background: #707070;
             border: 4px solid #000; box-shadow: inset -4px -4px 0 #373737, inset 4px 4px 0 #ababab;
-            padding: 30px; text-align: center; position: relative; cursor: pointer; margin-bottom: 40px;
+            padding: 25px; text-align: center; position: relative; cursor: pointer; margin-bottom: 20px;
         }
         .upload-container:hover { background: #8b8b8b; }
         #fileInput { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
 
+        /* --- Search Bar (Minecraft GUI Input Style) --- */
+        .search-container {
+            width: 100%; max-width: 600px; margin-bottom: 40px;
+        }
+        #searchInput {
+            width: 100%;
+            background: #000;
+            border: 2px solid #a0a0a0;
+            color: #fff;
+            font-family: 'Minecraft', sans-serif;
+            padding: 12px;
+            font-size: 1rem;
+            outline: none;
+            box-shadow: inset 2px 2px 0 #333;
+        }
+        #searchInput:focus { border-color: #fff; }
+
+        /* --- Grid --- */
         #resultsGrid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
             gap: 20px; width: 100%; max-width: 1600px;
         }
 
@@ -46,12 +65,15 @@
             background: var(--mc-gui);
             border: 3px solid #000;
             box-shadow: inset -3px -3px 0 var(--mc-border-dark), inset 3px 3px 0 var(--mc-border-light);
-            padding: 15px; display: flex; flex-direction: column; gap: 12px;
+            padding: 15px; display: flex; flex-direction: column; gap: 10px;
         }
+
+        /* Search Filtering Class */
+        .hidden { display: none !important; }
 
         .card-header {
             display: flex; align-items: center; gap: 15px;
-            padding-bottom: 10px; border-bottom: 2px solid #a1a1a1;
+            padding-bottom: 8px; border-bottom: 2px solid #9e9e9e;
         }
 
         .img-frame {
@@ -60,25 +82,24 @@
         }
         .img-frame img { width: 100%; height: 100%; }
 
-        .item-name { font-size: 1rem; color: #000; text-transform: uppercase; font-weight: bold; }
+        .item-name { font-size: 0.95rem; color: #000; text-transform: uppercase; font-weight: bold; }
 
-        /* --- Hex Boxes --- */
-        .color-entry { margin-top: 5px; }
-        .label-text { font-size: 0.55rem; color: #555; font-weight: bold; text-transform: uppercase; margin-bottom: 3px; }
+        /* --- Hex Entries --- */
+        .color-entry { margin-top: 4px; }
+        .label-text { font-size: 0.55rem; color: #666; font-weight: bold; text-transform: uppercase; margin-bottom: 2px; }
 
         .hex-box {
             background: #000; border: 1px solid #373737;
             position: relative; cursor: pointer;
-            height: 48px; display: flex; justify-content: center; align-items: center;
+            height: 45px; display: flex; justify-content: center; align-items: center;
         }
 
-        .hex-value { color: var(--mc-gold); font-size: 1.4rem; }
-
+        .hex-value { color: var(--mc-gold); font-size: 1.3rem; }
         .color-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 5px; border-top: 1px solid #222; }
 
         #toast {
             position: fixed; bottom: 20px; background: #000; color: var(--mc-green);
-            border: 2px solid var(--mc-green); padding: 10px 20px; display: none;
+            border: 2px solid var(--mc-green); padding: 10px 20px; display: none; z-index: 100;
         }
     </style>
 </head>
@@ -86,13 +107,18 @@
 
     <header>
         <h1>VOXITEMA</h1>
-        <div style="color: #777; font-size: 0.7rem; margin-top: 5px;">SEMANTIC PALETTE EXTRACTION v2.0</div>
+        <div style="color: #777; font-size: 0.7rem;">SEMANTIC ANALYSIS SYSTEM</div>
     </header>
 
     <div class="upload-container">
-        <p>DROP TEXTURES TO ANALYZE</p>
-        <p style="font-size: 0.6rem; color: #ccc;">(AUTO-SCALING ENABLED TO AVOID CRASHES)</p>
+        <p>IMPORT VANILLA ASSETS</p>
         <input type="file" id="fileInput" multiple accept="image/*">
+    </div>
+
+    <!-- SEARCH FINDER -->
+    <div class="search-container">
+        <div style="font-size: 0.6rem; color: #aaa; margin-bottom: 5px; text-transform: uppercase;">Find Specific Texture:</div>
+        <input type="text" id="searchInput" placeholder="Search analyzed blocks...">
     </div>
 
     <div id="resultsGrid"></div>
@@ -100,7 +126,22 @@
 
     <script>
         const fileInput = document.getElementById('fileInput');
+        const searchInput = document.getElementById('searchInput');
         const resultsGrid = document.getElementById('resultsGrid');
+
+        // Search logic
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toUpperCase();
+            const cards = document.querySelectorAll('.card');
+            cards.forEach(card => {
+                const name = card.getAttribute('data-name');
+                if (name.includes(query)) {
+                    card.classList.remove('hidden');
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+        });
 
         fileInput.addEventListener('change', async (e) => {
             const files = Array.from(e.target.files);
@@ -118,72 +159,70 @@
                     const img = new Image();
                     img.src = e.target.result;
                     img.onload = () => {
-                        const colors = analyzeColorClusters(img, name);
-                        renderCard(name, e.target.result, colors);
+                        const palette = analyzeAsset(img, name);
+                        renderCard(name, e.target.result, palette);
                         resolve();
                     };
                 };
             });
         }
 
-        function analyzeColorClusters(img, name) {
+        function analyzeAsset(img, name) {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
             
-            // CRASH PREVENTION: Downscale high-res images to 32x32 for analysis
-            const size = 32;
-            canvas.width = size; canvas.height = size;
-            ctx.drawImage(img, 0, 0, size, size);
-            
-            const data = ctx.getImageData(0, 0, size, size).data;
-            let palette = {};
-            let signalColor = null;
+            // ANTI-CRASH: Process small grid
+            const s = 32;
+            canvas.width = s; canvas.height = s;
+            ctx.drawImage(img, 0, 0, s, s);
+            const data = ctx.getImageData(0, 0, s, s).data;
+
+            // ORGANIC / FLAT items use 1 color only
+            const isOrganic = ["FLOWER", "SAPLING", "LEAVES", "GLASS", "WOOL", "SHULKER", "CROP", "GRASS"].some(k => name.includes(k));
+            if (isOrganic) return [getAverage(data)];
+
+            let colorCounts = {};
+            let redDot = null;
 
             for (let i = 0; i < data.length; i += 4) {
                 const [r, g, b, a] = [data[i], data[i+1], data[i+2], data[i+3]];
                 if (a < 128) continue;
 
-                // COPPER BULB FIX: Manually look for the tiny red signal dot
-                if (r > 150 && g < 80 && b < 80) {
-                    signalColor = rgbToHex(r, g, b);
-                }
+                // COPPER BULB RED DOT SCAN
+                if (r > 155 && g < 75 && b < 75) redDot = rgbToHex(r, g, b);
 
-                // Group similar colors to prevent "clutter" colors
-                const key = `${Math.round(r/16)*16},${Math.round(g/16)*16},${Math.round(b/16)*16}`;
-                palette[key] = (palette[key] || 0) + 1;
+                const key = `${Math.round(r/12)*12},${Math.round(g/12)*12},${Math.round(b/12)*12}`;
+                colorCounts[key] = (colorCounts[key] || 0) + 1;
             }
 
-            const sorted = Object.entries(palette).sort((a, b) => b[1] - a[1]);
-            let finalColors = [];
+            const sorted = Object.entries(colorCounts).sort((a, b) => b[1] - a[1]);
+            let results = [];
+            
+            if (sorted[0]) results.push(rgbToHex(...sorted[0][0].split(',').map(Number)));
 
-            // Add the most dominant color
-            if (sorted[0]) finalColors.push(rgbToHex(...sorted[0][0].split(',').map(Number)));
-
-            // Extract more distinct colors
-            for (let i = 1; i < sorted.length && finalColors.length < 3; i++) {
-                const color = rgbToHex(...sorted[i][0].split(',').map(Number));
-                if (!isColorSimilar(color, finalColors)) finalColors.push(color);
+            for (let i = 1; i < sorted.length && results.length < 3; i++) {
+                const hex = rgbToHex(...sorted[i][0].split(',').map(Number));
+                if (!isSimilar(hex, results, 60)) results.push(hex);
             }
 
-            // Special handling for Copper Bulbs or special devices
-            if (signalColor && !isColorSimilar(signalColor, finalColors)) {
-                finalColors.push(signalColor);
-            }
+            if (redDot && !isSimilar(redDot, results, 60)) results.push(redDot);
 
-            // Force Shulker and Wool to 1 color only
-            if (name.includes("WOOL") || name.includes("SHULKER")) {
-                return [finalColors[0]];
-            }
-
-            return finalColors;
+            return results;
         }
 
-        function isColorSimilar(newHex, existingArray) {
-            return existingArray.some(hex => {
-                const c1 = hexToRgb(newHex);
-                const c2 = hexToRgb(hex);
-                const dist = Math.abs(c1.r-c2.r) + Math.abs(c1.g-c2.g) + Math.abs(c1.b-c2.b);
-                return dist < 100; // Similarity threshold
+        function getAverage(data) {
+            let r=0, g=0, b=0, c=0;
+            for (let i=0; i<data.length; i+=4) {
+                if (data[i+3] < 50) continue;
+                r += data[i]; g += data[i+1]; b += data[i+2]; c++;
+            }
+            return c ? rgbToHex(Math.round(r/c), Math.round(g/c), Math.round(b/c)) : "#000000";
+        }
+
+        function isSimilar(h, arr, threshold) {
+            return arr.some(existing => {
+                const c1 = hexToRgb(h); const c2 = hexToRgb(existing);
+                return (Math.abs(c1.r-c2.r) + Math.abs(c1.g-c2.g) + Math.abs(c1.b-c2.b)) < threshold;
             });
         }
 
@@ -192,37 +231,30 @@
         }
 
         function hexToRgb(hex) {
-            const bigint = parseInt(hex.slice(1), 16);
-            return { r: (bigint >> 16) & 255, g: (bigint >> 8) & 255, b: bigint & 255 };
+            const n = parseInt(hex.slice(1), 16);
+            return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
         }
 
         function renderCard(name, src, colors) {
             let labels = ["PRIMARY SURFACE", "ACCENT DETAIL", "SECONDARY DETAIL", "SIGNAL COLOR"];
-            
-            // Adjust labels based on block type observed in screenshots
-            if (name.includes("BULB")) labels = ["BLOCK TEXTURE COLOR", "BULB LIGHT COLOR", "SIGNAL COLOR"];
-            if (name.includes("ORE") || name.includes("DEBRIS")) labels = ["STONE BASE", "ORE OVERLAY", "SPECULAR DETAIL"];
+            if (name.includes("BULB")) labels = ["BLOCK TEXTURE COLOR", "BULB LIGHT COLOR", "ACCENT DETAIL", "SIGNAL COLOR"];
+            if (name.includes("ORE") || name.includes("DEBRIS")) labels = ["STONE BASE", "ORE OVERLAY", "SECONDARY DETAIL"];
             if (colors.length === 1) labels = ["AVERAGE HEX COLOR"];
 
             const html = colors.map((hex, i) => `
                 <div class="color-entry">
-                    <div class="label-text">${labels[i] || "DETAIL COLOR"}</div>
+                    <div class="label-text">${labels[i] || "DETAIL"}</div>
                     <div class="hex-box" onclick="copy('${hex}')">
                         <span class="hex-value">${hex}</span>
-                        <div class="color-stripe" style="background-color: ${hex}"></div>
+                        <div class="color-bar" style="background-color: ${hex}"></div>
                     </div>
                 </div>
             `).join('');
 
             const card = document.createElement('div');
             card.className = 'card';
-            card.innerHTML = `
-                <div class="card-header">
-                    <div class="img-frame"><img src="${src}"></div>
-                    <div class="item-name">${name}</div>
-                </div>
-                ${html}
-            `;
+            card.setAttribute('data-name', name); // Used for Search Find
+            card.innerHTML = `<div class="card-header"><div class="img-frame"><img src="${src}"></div><div class="item-name">${name}</div></div>${html}`;
             resultsGrid.prepend(card);
         }
 
