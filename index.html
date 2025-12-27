@@ -3,14 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Voxitema | Vanilla Texture Analyzer</title>
-
-    <!-- --- WEBSITE TAB ICON (FAVICON) --- -->
+    <title>Voxitema | Vanilla Texture Semantic Analyzer</title>
+    <!-- Favicon -->
     <link rel="icon" type="image/png" href="voxitema_logo.png">
-    <!-- For mobile devices -->
-    <link rel="apple-touch-icon" href="icon.png">
-
-    <!-- Authentic Minecraft Font -->
+    <!-- Minecraft Font -->
     <link href="https://fonts.cdnfonts.com/css/minecraft-4" rel="stylesheet">
     
     <style>
@@ -28,128 +24,110 @@
         body {
             background-color: var(--mc-bg);
             font-family: 'Minecraft', sans-serif;
-            margin: 0; padding: 20px;
+            margin: 0; padding: 0;
             display: flex; flex-direction: column; align-items: center;
-            color: #fff;
+            color: #fff; min-height: 100vh;
         }
 
-        /* --- Header with Icon --- */
+        /* --- Clickable Header (Replicating Image) --- */
         header { 
-            text-align: center; 
-            margin-bottom: 25px; 
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
+            width: 100%; padding: 40px 20px; text-align: center;
+            background: #000; cursor: pointer; border-bottom: 2px solid #222;
+        }
+        .title-row { display: flex; align-items: center; justify-content: center; gap: 20px; }
+        .app-logo { width: 72px; height: 72px; }
+        .title-text { font-size: 3.5rem; color: var(--mc-gold); text-shadow: 5px 5px 0px #3f3f3f; margin: 0; }
+        .subtitle-text { color: #888; font-size: 0.8rem; letter-spacing: 4px; text-transform: uppercase; margin-top: 8px; }
+
+        /* --- Search & Upload --- */
+        .controls {
+            display: flex; flex-wrap: wrap; justify-content: center;
+            gap: 15px; padding: 30px; width: 100%; max-width: 900px;
+        }
+        .btn-mc {
+            background: #707070; border: 4px solid #000; color: #fff;
+            padding: 12px 25px; cursor: pointer; position: relative;
+            box-shadow: inset -4px -4px 0 #373737, inset 4px 4px 0 #ababab;
+            font-family: 'Minecraft', sans-serif; font-size: 1rem;
+        }
+        .btn-mc:hover { background: #8b8b8b; }
+        .btn-mc input { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+
+        .search-box {
+            background: #000; border: 3px solid #555; color: #fff;
+            padding: 12px; font-family: 'Minecraft', sans-serif; width: 350px;
+            box-shadow: inset 3px 3px 0 #111; outline: none; font-size: 1rem;
         }
 
-        .title-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 20px;
-        }
-
-        .header-icon {
-            width: 64px;
-            height: 64px;
-            image-rendering: pixelated; 
-        }
-
-        h1 { font-size: 3.2rem; color: var(--mc-gold); text-shadow: 4px 4px 0 #333; margin: 0; }
-
-        /* --- Upload Container --- */
-        .upload-container {
-            width: 100%; max-width: 600px; background: #707070;
-            border: 4px solid #000; box-shadow: inset -4px -4px 0 #373737, inset 4px 4px 0 #ababab;
-            padding: 25px; text-align: center; position: relative; cursor: pointer; margin-bottom: 20px;
-        }
-        .upload-container:hover { background: #8b8b8b; }
-        #fileInput { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
-
-        /* --- Search Bar --- */
-        .search-container { width: 100%; max-width: 600px; margin-bottom: 40px; }
-        #searchInput {
-            width: 100%; background: #000; border: 2px solid #a0a0a0; color: #fff;
-            font-family: 'Minecraft', sans-serif; padding: 12px; font-size: 1rem; outline: none;
-            box-shadow: inset 2px 2px 0 #333;
-        }
-        #searchInput:focus { border-color: #fff; }
-
-        /* --- Grid & Cards --- */
+        /* --- Grid & Card Design --- */
         #resultsGrid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-            gap: 20px; width: 100%; max-width: 1600px;
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+            gap: 25px; width: 95%; max-width: 1800px; padding: 20px;
         }
 
         .card {
-            background: var(--mc-gui);
-            border: 3px solid #000;
-            box-shadow: inset -3px -3px 0 var(--mc-border-dark), inset 3px 3px 0 var(--mc-border-light);
-            padding: 15px; display: flex; flex-direction: column; gap: 10px;
+            background: var(--mc-gui); border: 4px solid #000;
+            box-shadow: inset -4px -4px 0 var(--mc-border-dark), inset 4px 4px 0 var(--mc-border-light);
+            padding: 20px; display: flex; flex-direction: column; gap: 15px;
         }
 
-        .hidden { display: none !important; }
-
         .card-header {
-            display: flex; align-items: center; gap: 15px;
-            padding-bottom: 8px; border-bottom: 2px solid #9e9e9e;
+            display: flex; align-items: center; gap: 20px;
+            padding-bottom: 12px; border-bottom: 2px solid #a1a1a1;
         }
 
         .img-frame {
-            background: #8b8b8b; border: 2px solid #373737; padding: 4px;
-            box-shadow: inset 2px 2px 0 #000; width: 56px; height: 56px;
+            background: #8b8b8b; border: 3px solid #373737; padding: 4px;
+            box-shadow: inset 3px 3px 0 #000; width: 64px; height: 64px; flex-shrink: 0;
         }
         .img-frame img { width: 100%; height: 100%; }
 
-        .item-name { font-size: 0.95rem; color: #000; text-transform: uppercase; font-weight: bold; }
+        .item-name { font-size: 1.1rem; color: #000; text-transform: uppercase; font-weight: bold; }
 
-        .color-entry { margin-top: 4px; }
-        .label-text { font-size: 0.55rem; color: #666; font-weight: bold; text-transform: uppercase; margin-bottom: 2px; }
+        /* --- Hex Color Slots --- */
+        .color-slot { margin-top: 5px; }
+        .label-text { font-size: 0.6rem; color: #707070; font-weight: bold; text-transform: uppercase; margin-bottom: 4px; }
 
         .hex-box {
-            background: #000; border: 1px solid #373737; position: relative; cursor: pointer;
-            height: 45px; display: flex; justify-content: center; align-items: center;
+            background: #000; border: 1.5px solid #373737; position: relative;
+            cursor: pointer; height: 50px; display: flex; justify-content: center; align-items: center;
         }
-
-        .hex-value { color: var(--mc-gold); font-size: 1.3rem; }
-        .color-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 5px; border-top: 1px solid #222; }
+        .hex-value { color: var(--mc-gold); font-size: 1.6rem; letter-spacing: 1px; }
+        .color-stripe { position: absolute; bottom: 0; left: 0; width: 100%; height: 6px; border-top: 1px solid #222; }
 
         #toast {
-            position: fixed; bottom: 20px; background: #000; color: var(--mc-green);
-            border: 2px solid var(--mc-green); padding: 10px 20px; display: none; z-index: 100;
+            position: fixed; bottom: 30px; background: #000; color: var(--mc-green);
+            border: 2px solid var(--mc-green); padding: 15px 30px; display: none; z-index: 1000;
         }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
-    <header>
-        <div class="title-container">
-            <!-- HEADER ICON -->
-            <img src="voxitema_logo.png" class="header-icon" alt="Icon">
-            <h1>VOXITEMA</h1>
+    <header onclick="location.reload()">
+        <div class="header-content">
+            <div class="title-row">
+                <img src="voxitema_logo.png" class="app-logo" alt="">
+                <h1 class="title-text">VOXITEMA</h1>
+            </div>
+            <div class="subtitle-text">VANILLA TEXTURE SEMANTIC ANALYZER</div>
         </div>
-        <div style="color: #777; font-size: 0.75rem; letter-spacing: 1px;">SEMANTIC ANALYSIS SYSTEM</div>
     </header>
 
-    <div class="upload-container">
-        <p>IMPORT VANILLA ASSETS</p>
-        <input type="file" id="fileInput" multiple accept="image/*">
-    </div>
-
-    <div class="search-container">
-        <div style="font-size: 0.6rem; color: #aaa; margin-bottom: 5px; text-transform: uppercase;">Find Specific Texture:</div>
-        <input type="text" id="searchInput" placeholder="Search analyzed blocks...">
+    <div class="controls">
+        <div class="btn-mc">IMPORT ASSETS<input type="file" id="fileInput" multiple accept="image/*"></div>
+        <input type="text" id="searchInput" class="search-box" placeholder="Find texture by name...">
     </div>
 
     <div id="resultsGrid"></div>
-    <div id="toast">COPIED!</div>
+    <div id="toast">HEX COPIED</div>
 
     <script>
         const fileInput = document.getElementById('fileInput');
         const searchInput = document.getElementById('searchInput');
         const resultsGrid = document.getElementById('resultsGrid');
 
+        // Instant Filter Search
         searchInput.addEventListener('input', (e) => {
             const query = e.target.value.toUpperCase();
             document.querySelectorAll('.card').forEach(card => {
@@ -173,7 +151,7 @@
                     const img = new Image();
                     img.src = e.target.result;
                     img.onload = () => {
-                        const palette = analyzeAsset(img, name);
+                        const palette = analyzeTexture(img, name);
                         renderCard(name, e.target.result, palette);
                         resolve();
                     };
@@ -181,78 +159,99 @@
             });
         }
 
-        function analyzeAsset(img, name) {
+        function analyzeTexture(img, name) {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
+            
+            // ANTI-CRASH: Limit math to a 32x32 sample grid
             const s = 32;
             canvas.width = s; canvas.height = s;
             ctx.drawImage(img, 0, 0, s, s);
             const data = ctx.getImageData(0, 0, s, s).data;
 
-            const isOrganic = ["FLOWER", "SAPLING", "LEAVES", "GLASS", "WOOL", "SHULKER", "CROP", "GRASS"].some(k => name.includes(k));
-            if (isOrganic) return [getAverage(data)];
+            // Logic to determine if asset is a "Simple Item" or a "Complex Block"
+            const itemKeywords = ["SHARD", "INGOT", "SWORD", "PICKAXE", "AXE", "SHOVEL", "HOE", "APPLE", "DUST", "NUGGET", "RAW", "CRYSTAL", "POTION", "BOOK"];
+            const blockKeywords = ["BLOCK", "ORE", "DEBRIS", "BULB", "VAULT", "SPAWNER", "COMMAND", "CRAFTER", "BRICK"];
+            
+            const isItem = itemKeywords.some(k => name.includes(k));
+            const isComplexBlock = blockKeywords.some(k => name.includes(k));
 
-            let colorCounts = {};
+            // items and simple textures (Wool/Shulker) get ONE color average
+            if (isItem || (!isComplexBlock && name.length > 0)) {
+                // If it contains block keywords but is a side/top variant, check further
+                const isVariant = name.includes("SIDE") || name.includes("TOP") || name.includes("BOTTOM");
+                if (isItem && !isVariant) return [getAverageHex(data)];
+                
+                // If it's a known simple block (Wool/Leaves), also force 1 color
+                if (["WOOL", "LEAVES", "GLASS", "SHULKER", "DIRT", "GRASS"].some(k => name.includes(k))) {
+                    return [getAverageHex(data)];
+                }
+            }
+
+            // Multi-Color extraction for complex blocks (Ores, Bulbs, etc.)
+            let clusters = {};
             let redDot = null;
 
             for (let i = 0; i < data.length; i += 4) {
                 const [r, g, b, a] = [data[i], data[i+1], data[i+2], data[i+3]];
                 if (a < 128) continue;
-                if (r > 155 && g < 75 && b < 75) redDot = rgbToHex(r, g, b);
-                const key = `${Math.round(r/12)*12},${Math.round(g/12)*12},${Math.round(b/12)*12}`;
-                colorCounts[rgbToHex(r, g, b)] = (colorCounts[rgbToHex(r, g, b)] || 0) + 1;
+                if (r > 160 && g < 75 && b < 75) redDot = rgbToHex(r, g, b); // Redstone signal detect
+
+                const key = `${Math.round(r/15)*15},${Math.round(g/15)*15},${Math.round(b/15)*15}`;
+                clusters[key] = (clusters[key] || 0) + 1;
             }
 
-            const sorted = Object.entries(colorCounts).sort((a, b) => b[1] - a[1]);
+            const sorted = Object.entries(clusters).sort((a, b) => b[1] - a[1]);
             let results = [];
-            
-            if (sorted[0]) results.push(sorted[0][0]);
+            if (sorted[0]) results.push(rgbToHex(...sorted[0][0].split(',').map(Number)));
 
             for (let i = 1; i < sorted.length && results.length < 3; i++) {
-                if (!isSimilar(sorted[i][0], results, 55)) results.push(sorted[i][0]);
+                const hex = rgbToHex(...sorted[i][0].split(',').map(Number));
+                if (!isSimilar(hex, results, 70)) results.push(hex);
             }
 
-            if (redDot && !isSimilar(redDot, results, 55)) results.push(redDot);
+            if (redDot && !isSimilar(redDot, results, 60)) results.push(redDot);
             return results;
         }
 
-        function getAverage(data) {
+        function getAverageHex(data) {
             let r=0, g=0, b=0, c=0;
             for (let i=0; i<data.length; i+=4) {
-                if (data[i+3] < 50) continue;
+                if (data[i+3] < 128) continue;
                 r += data[i]; g += data[i+1]; b += data[i+2]; c++;
             }
             return c ? rgbToHex(Math.round(r/c), Math.round(g/c), Math.round(b/c)) : "#000000";
         }
 
-        function isSimilar(h, arr, threshold) {
-            return arr.some(existing => {
-                const c1 = hexToRgb(h); const c2 = hexToRgb(existing);
-                return (Math.abs(c1.r-c2.r) + Math.abs(c1.g-c2.g) + Math.abs(c1.b-c2.b)) < threshold;
+        function isSimilar(h, arr, thresh) {
+            return arr.some(ex => {
+                const c1 = hexToRgb(h); const c2 = hexToRgb(ex);
+                return (Math.abs(c1.r-c2.r) + Math.abs(c1.g-c2.g) + Math.abs(c1.b-c2.b)) < thresh;
             });
         }
 
-        function rgbToHex(r, g, b) {
-            return "#" + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('').toUpperCase();
-        }
-
-        function hexToRgb(hex) {
-            const n = parseInt(hex.slice(1), 16);
-            return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
-        }
+        function rgbToHex(r, g, b) { return "#" + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('').toUpperCase(); }
+        function hexToRgb(hex) { const n = parseInt(hex.slice(1), 16); return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 }; }
 
         function renderCard(name, src, colors) {
-            let labels = ["PRIMARY SURFACE", "ACCENT DETAIL", "SECONDARY DETAIL", "SIGNAL COLOR"];
-            if (name.includes("BULB")) labels = ["BLOCK TEXTURE COLOR", "BULB LIGHT COLOR", "ACCENT DETAIL", "SIGNAL COLOR"];
-            if (name.includes("ORE") || name.includes("DEBRIS")) labels = ["STONE BASE", "ORE OVERLAY", "SECONDARY DETAIL"];
-            if (colors.length === 1) labels = ["AVERAGE HEX COLOR"];
+            let labels = ["PRIMARY SURFACE", "ACCENT DETAIL", "SECONDARY DETAIL"];
+            
+            // Context Labels based on your provided screenshots
+            if (name.includes("ORE") || name.includes("DEBRIS")) {
+                labels = ["STONE BASE", "ORE OVERLAY", "DETAIL"];
+            } else if (name.includes("BULB")) {
+                labels = ["BLOCK TEXTURE COLOR", "BULB LIGHT COLOR", "SIGNAL COLOR"];
+            } else if (colors.length === 1) {
+                // FORCE ACCENT DETAIL FOR ITEMS
+                labels = ["ACCENT DETAIL"];
+            }
 
             const html = colors.map((hex, i) => `
-                <div class="color-entry">
+                <div class="color-slot">
                     <div class="label-text">${labels[i] || "DETAIL"}</div>
-                    <div class="hex-box" onclick="copy('${hex}')">
+                    <div class="hex-box" onclick="copyToClipboard('${hex}')">
                         <span class="hex-value">${hex}</span>
-                        <div class="color-bar" style="background-color: ${hex}"></div>
+                        <div class="color-stripe" style="background-color: ${hex}"></div>
                     </div>
                 </div>
             `).join('');
@@ -264,7 +263,7 @@
             resultsGrid.prepend(card);
         }
 
-        function copy(text) {
+        function copyToClipboard(text) {
             navigator.clipboard.writeText(text);
             const t = document.getElementById('toast');
             t.style.display = 'block';
